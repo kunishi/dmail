@@ -1,0 +1,25 @@
+@SET_MAKE@
+RM=	@dmail_rm@
+
+PROGS=	saveMail sendMail re-fine-mail
+INSTFILES=	${PROGS}
+INSTFILES+=	getdistopt.awk processheader.awk
+INSTFILES+=	config-@dmail_mlname@.sh
+
+INSTUSER=	@dmail_mlname@
+INSTHOST=	@dmail_mlhost@
+SCRIPTDIR=	@dmail_scriptdir@
+
+INSTALL_CMD=	scp
+INSTALL_OPTS=	-p
+
+install::
+	${INSTALL_CMD} ${INSTALL_OPTS} ${INSTFILES} \
+	  ${INSTUSER}@${INSTHOST}:${SCRIPTDIR}/
+
+clean::
+	@${RM} -f ${PROGS} config.cache config.log config.status
+	@${RM} -f config-*.sh aliases-*.sample header-*.sample
+
+distclean::	clean
+	@${RM} -f Makefile

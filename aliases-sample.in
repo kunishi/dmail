@@ -1,0 +1,11 @@
+## @dmail_mlname@ ML
+@dmail_mlname@:		"|/bin/sh @dmail_scriptdir@/re-fine-mail"
+@dmail_mlname@-request:	kunishi
+@dmail_mlname@-mem:	:include:@dmail_scriptdir@/@dmail_mlname@-mem
+@dmail_mlname@-express:	:include:@dmail_scriptdir@/express.list
+@dmail_mlname@-internet:	:include:@dmail_scriptdir@/internet.list
+@dmail_mlname@-hml:	:include:@dmail_scriptdir@/hml.list
+@dmail_mlname@-nonhml:	:include:@dmail_scriptdir@/nonhml.list
+@dmail_mlname@-nifty:	:include:@dmail_scriptdir@/nifty.list
+@dmail_mlname@-amuse:	:include:@dmail_scriptdir@/amuse.list
+@dmail_mlname@-test:	:include:@dmail_scriptdir@/test.list

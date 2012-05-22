@@ -1,0 +1,12 @@
+## hamoru KOBE ML
+### for old ML settings
+hamoru:		"|/bin/sh /usr/local/ml/hamoru-old/re-fine-mail"
+hamoru-request:	kunishi
+hamoru-mem:	:include:/usr/local/ml/hamoru-old/hamoru-mem
+hamoru-express:	:include:/usr/local/ml/hamoru-old/express.list
+hamoru-internet:	:include:/usr/local/ml/hamoru-old/internet.list
+hamoru-hml:	:include:/usr/local/ml/hamoru-old/hml.list
+hamoru-nonhml:	:include:/usr/local/ml/hamoru-old/nonhml.list
+hamoru-nifty:	:include:/usr/local/ml/hamoru-old/nifty.list
+hamoru-amuse:	:include:/usr/local/ml/hamoru-old/amuse.list
+hamoru-test:	:include:/usr/local/ml/hamoru-old/test.list

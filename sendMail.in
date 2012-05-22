@@ -1,0 +1,106 @@
+#! /bin/sh -
+# @configure_input@
+
+### Configuration Part ###
+# User Dependent Part
+. @dmail_scriptdir@/config-@dmail_mlname@.sh
+
+TOP_DIR=$SCRIPTDIR/dmail
+TMP_DIR=/tmp
+SAVE_FILE=$TOP_DIR/drafts
+MEMBER_LIST=$TOP_DIR/members
+HEADER_FILE=$TOP_DIR/header
+LOG_FILE=$TOP_DIR/log
+LOCK_FILE=$TOP_DIR/lock
+SPLIT_LINES=490
+
+# OS dependent Part
+DMAIL_OWNER=$MLOWNER
+######
+# standard command to send mails.
+# I recommend to you that you should send mails by queueing all the mails 
+# and by flushing the queuing mails, to avoid running sendmails in parallel.
+#MAIL_COMMAND="@dmail_sendmail@ -oi -odq -f$DMAIL_OWNER"
+#QUEUE_FLUSH_COMMAND="@dmail_sendmail@ -oi -q"
+###
+# if you don't want to use queuing technique, uncomment the next 2 lines.
+MAIL_COMMAND="@dmail_sendmail@ -oi -t -f$DMAIL_OWNER"
+QUEUE_FLUSH_COMMAND=
+###
+# if you don't want to run this script as root, use local mailer to send
+# mails.
+## if your system is BSD, uncomment the next two lines.
+#MAIL_COMMAND=/bin/mail
+#QUEUE_FLUSH_COMMAND=
+## if your system is System V, uncomment the next two lines.
+#MAIL_COMMAND=/bin/rmail
+#QUEUE_FLUSH_COMMAND=
+
+CAT=@dmail_cat@
+DATE=@dmail_date@
+ECHO=@dmail_echo@
+LS=@dmail_ls@
+RM=@dmail_rm@
+SED=@dmail_sed@
+SLEEP=@dmail_sleep@
+SPLIT=@dmail_split@
+TOUCH=@dmail_touch@
+TR=@dmail_tr@
+WC=@dmail_wc@
+
+# MIME decoding program.
+# if you do not have MIME decoding programs (such as NKF 1.5), use $CAT.
+MIMEDECODER="@dmail_nkf@ -m"
+#MIMEDECODER=$CAT
+
+### End of Configuration Part ###
+
+# DO NOT modify below if you don't know enough about how this script works
+
+trap "$RM -f $TMP_DIR/tmpsnd$$ $TMP_DIR/split$$* $SENDFILE $LOCK_FILE; \
+	exit 1" 2 3 10 11 15
+
+cd $TOP_DIR
+while [ -f "$LOCK_FILE" ]; do
+	$SLEEP 5
+done
+$TOUCH $LOCK_FILE
+if [ ! -f "$SAVE_FILE" ]; then
+	$RM -f $LOCK_FILE
+	exit 0
+fi
+
+SENDFILE=$TMP_DIR/tmpsnd$$
+SPLITFILE=$TMP_DIR/split$$
+$SED -e '/^Received:/ N' -e '/^Received:/ d' $SAVE_FILE > $SENDFILE
+
+MEMBERS=`$CAT $MEMBER_LIST | $SED -e '/^#/d' | $TR '\012' ' '`
+set `$WC $SENDFILE`
+LINES=$1
+BYTES=$3
+
+if [ "$LINES" -lt "$SPLIT_LINES" ]; then
+	$CAT $HEADER_FILE $SENDFILE | $MIMEDECODER | $MAIL_COMMAND $MEMBERS
+else
+	$CAT $SENDFILE | $SPLIT -$SPLIT_LINES - $SPLITFILE
+	n=1
+	set `$LS $SPLITFILE*`
+	for f in "$@"; do
+		($CAT $HEADER_FILE
+		$ECHO "BEGIN--part $n of $#"
+		$CAT $f
+		$ECHO "END--part $n of $#") | $MIMEDECODER | $MAIL_COMMAND $MEMBERS
+		n=`expr $n + 1`
+	done
+	$RM -f $SPLITFILE*
+fi
+
+$QUEUE_FLUSH_COMMAND
+
+if [ "x$LOG_FILE" != "x" ]; then
+	$ECHO "$BYTES" bytes distributed on `$DATE` >> $LOG_FILE
+fi
+
+$RM -f $SENDFILE
+$RM -f $SAVE_FILE $SAVE_FILE~
+$RM -f $LOCK_FILE

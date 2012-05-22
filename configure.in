@@ -1,0 +1,68 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT()
+AC_PROG_MAKE_SET
+
+dnl Checks for programs.
+AC_PATH_PROG(dmail_awk, awk, missing_awk)
+AC_PATH_PROG(dmail_basename, basename, missing_basename)
+AC_PATH_PROG(dmail_cat, cat, missing_cat)
+AC_PATH_PROG(dmail_chmod, chmod, missing_chmod)
+AC_PATH_PROG(dmail_cp, cp, missing_cp)
+AC_PATH_PROG(dmail_deMime, deMime, missing_deMime)
+AC_PATH_PROG(dmail_date, date, missing_date)
+AC_PATH_PROG(dmail_echo, echo, missing_echo)
+AC_PATH_PROG(dmail_enMime, enMime, missing_enMime)
+AC_PATH_PROG(dmail_grep, grep, missing_grep)
+AC_PATH_PROG(dmail_head, head, missing_head)
+AC_PATH_PROG(dmail_hostname, hostname, missing_hostname)
+AC_PATH_PROG(dmail_ls, ls, missing_ls)
+AC_PATH_PROG(dmail_mv, mv, missing_mv)
+AC_PATH_PROG(dmail_nkf, nkf, missing_nkf)
+AC_PATH_PROG(dmail_rm, rm, missing_rm)
+AC_PATH_PROG(dmail_sed, sed, missing_sed)
+AC_PATH_PROG(dmail_sendmail, sendmail, missing_sendmail)
+AC_PATH_PROG(dmail_sleep, sleep, missing_sleep)
+AC_PATH_PROG(dmail_split, split, missing_split)
+AC_PATH_PROG(dmail_tee, tee, missing_tee)
+AC_PATH_PROG(dmail_touch, touch, missing_touch)
+AC_PATH_PROG(dmail_tr, tr, missing_tr)
+AC_PATH_PROG(dmail_wc, wc, missing_wc)
+
+dnl Checks for libraries.
+
+dnl Checks for header files.
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+dnl Checks for library functions.
+AC_ARG_WITH(ml, 
+[  --with-ml=MLNAME        The name of the mailing list. [hamoru]],
+dmail_mlname=$withval, dmail_mlname='hamoru')
+AC_SUBST(dmail_mlname)
+
+dmail_thishost=`$dmail_hostname`
+AC_ARG_WITH(mlhost,
+[  --with-mlhost=MLHOST    The host the mailing list will be running.],
+dmail_mlhost=$withval, dmail_mlhost="$dmail_thishost")
+AC_SUBST(dmail_mlhost)
+
+AC_ARG_WITH(mladdr,
+[  --with-mladdr=MLADDR    The address of the mailing list.],
+dmail_mladdr=$withval, dmail_mladdr="$dmail_mlname@$dmail_mlhost")
+AC_SUBST(dmail_mladdr)
+
+AC_ARG_WITH(mlowner,
+[  --with-mlowner=ADDR     The owner address of the mailing list.],
+dmail_mlowner=$withval, dmail_mlowner="$dmail_mlname-request@$dmail_mlhost")
+AC_SUBST(dmail_mlowner)
+
+AC_ARG_WITH(scriptdir, 
+[  --with-scriptdir=DIR    Directory where the scripts are installed.], 
+dmail_scriptdir=$withval, dmail_scriptdir='/usr/local/ml/sample')
+AC_SUBST(dmail_scriptdir)
+
+AC_OUTPUT(Makefile saveMail sendMail re-fine-mail 
+	config-$dmail_mlname.sh:mlconfig.sh.in
+	aliases-$dmail_mlname.sample:aliases-sample.in
+	header-$dmail_mlname.sample:header-dmail-sample.in,
+	chmod +x saveMail sendMail re-fine-mail)

@@ -1,0 +1,112 @@
+#!/bin/sh
+#
+# Classify a mail according to the keyword on its Subject,
+# and send it to the specified address in an appropriate way.
+#
+# $Id: re-fine-mail.in,v 1.14 2002/06/21 14:06:33 kunishi Exp $
+#
+# @configure_input@
+
+PATH=/usr/local/bin:/usr/sbin:/usr/bin:/bin
+if [ -f /var/qmail/bin ]; then
+    PATH=/var/qmail/bin:$PATH
+fi
+export PATH
+
+## CONFIGURATION PART ##
+. @dmail_scriptdir@/config-@dmail_mlname@.sh
+
+QMAILHOST=$MLHOST; export QMAILHOST
+QMAILMFTFILE=$SCRIPTDIR/mladdress; export QMAILMFTFILE
+
+WORK_DIR=/tmp
+MAIL_COPY=$WORK_DIR/q$$
+MAIL_DIST=$WORK_DIR/c$$
+
+AWK=@dmail_awk@
+BASENAME=@dmail_basename@
+HEAD=@dmail_head@
+#SENDMAIL="@dmail_sendmail@ -oi -f$MLOWNER"
+## If you use qmail, comment out the previous line and activate the
+## following line.
+SENDMAIL="/var/qmail/bin/qmail-inject -f$MLOWNER"
+RM=@dmail_rm@
+SED=@dmail_sed@
+CAT=@dmail_cat@
+LS=@dmail_ls@
+TEE=@dmail_tee@
+GREP=@dmail_grep@
+TR=@dmail_tr@
+MIME_ENCODER=@dmail_enMime@
+MIME_DECODER=@dmail_deMime@
+## END OF CONFIGURATION PART ##
+
+GETDISTOPT_SCRIPT=getdistopt.awk
+PROCESSHEADER_SCRIPT=processheader.awk
+SUBML_FILE=subml
+DEBUGECHO=
+TZ=JST-9
+
+trap "$RM -f $MAIL_COPY $MAIL_DIST; exit 1" 2 3 10 11 15
+
+# '-d' option is used for debug use.
+if [ "$1" = '-d' ]; then
+    DEBUG=1
+    shift
+fi
+
+# set variables for debug.
+if [ "$DEBUG" = 1 ]; then
+    DEBUGECHO=echo
+    SCRIPTDIR=.
+fi
+
+cd $SCRIPTDIR
+# get a distribution option from the 'Subject:' line.
+# The result is stored into $maildist.
+
+addrmem="$MLNAME-default"
+
+maildist=`$TEE $MAIL_COPY | $MIME_DECODER | $MIME_ENCODER | \
+	$AWK -v mlname=$MLNAME -f $SCRIPTDIR/$GETDISTOPT_SCRIPT`
+#echo $maildist
+if [ "$maildist" != '' ]; then
+    set $maildist
+    for distopt in $*; do
+	if [ $distopt != "[$MLNAME]" ]; then
+	    dist=`echo $distopt | $TR -d '[]'`
+	fi
+    done
+# collect a list of options and compare each option with $maildist.
+# if either no option are matched with $maildist or there is no
+# option, distributed address is $mlname. Else, '$mlname-optionname'.
+    if [ -f "$SCRIPTDIR/$SUBML_FILE" ]; then
+	subml=`$GREP -w $dist $SCRIPTDIR/$SUBML_FILE`
+	if [ "$subml" != '' ]; then
+	    addrmem="$MLNAME-$subml"
+	fi
+    fi
+fi
+
+# set MTA program.  (for debug use)
+if [ "$DEBUG" = 1 ]; then
+    MAIL_TRANSFER_AGENT=$CAT
+else
+    MAIL_TRANSFER_AGENT="$SENDMAIL $addrmem@$MLHOST"
+fi
+
+# distributing part.  'Received:', 'Return-Path:', 'Return-Receipt-To:', 
+# 'Reply-To:', and 'Errors-To:' fields are eliminated from the received mail.
+# 'Errors-To:' and 'Reply-To:' fields are newly added.
+if [ "$DEBUG" = 1 ]; then
+    $DEBUGECHO $SENDMAIL $addrmem@$MLHOST
+fi
+$CAT $MAIL_COPY | \
+$AWK -v maildist="$maildist" \
+     -v mlname=$MLNAME \
+     -v owner=$MLOWNER \
+     -v mladdress=$MLADDR \
+     -f $SCRIPTDIR/$PROCESSHEADER_SCRIPT | $MAIL_TRANSFER_AGENT
+
+$RM -f $MAIL_COPY
+$RM -f $MAIL_DIST
