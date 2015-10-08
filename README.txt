@@ -15,10 +15,6 @@ dmailは、メーリングリストで、NIFTYメンバを抱えている、な�
 送付のタイミングは cron を利用しているので自由に設定でき、
 １つのファイルからなるメールとして、該当者に送付されます。
 
-dmail Ver.1 は北村操代さん(misayo@sys.crl.melco.co.jp)により作成され、
-藤岡卓さん(taku@itc.crl.melco.co.jp)、田辺真佐子さん
-(PEB03764@niftyserve.or.jp)により改良が行われました。
-
 dmail Ver.2 は、Ver.1 をシェルスクリプトに書き換えると同時に、簡単な 
 signal 処理、メールの queueing & flushing 処理、不要なヘッダの削除、ヘッ
 ダ部分の MIME decoding 処理などを加えています。ただし、基本的なアルゴ
