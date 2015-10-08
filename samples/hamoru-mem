@@ -1,21 +1,4 @@
-nonchan@white.plala.or.jp
-kako@pat.hi-ho.ne.jp
-mmorita@scrum.mss.mei.co.jp
-motoko2@oml.melco.co.jp
-misayo@sys.crl.melco.co.jp
-akiko_maeda/OMRONJP@ns2.omron.co.jp
-taku@pic.melco.co.jp
-hideyo@math.kobe-u.ac.jp
-nishima3@sei.co.jp
-kunishi@c.oka-pu.ac.jp
-tani@arl.drl.mei.co.jp
-ysaito@silver.ocn.ne.jp
-skashima@kobepharma-u.ac.jp
-VYQ03336@niftyserve.or.jp
-Akira_Shioyama@nts.toray.co.jp
-akies@remus.dti.ne.jp
-ryouichi@osaka.xaxon-net.or.jp
-inada@nw.yrp.nttdocomo.co.jp
-yamada@rcde.dpri.kyoto-u.ac.jp
-kishimot@gen.tvrl.mei.co.jp
+user1@example.com
+user2@example.com
+user3@example.com
 "|/bin/sh /usr/local/ml/hamoru-old/dmail/saveMail.sh 2>>/usr/local/ml/hamoru-old/dmail/log"
